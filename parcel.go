@@ -105,40 +105,49 @@ func (s ParcelStore) SetStatus(number int, status string) error {
 }
 
 func (s ParcelStore) SetAddress(number int, address string) error {
-	p, err := s.Get(number)
+	result, err := s.db.Exec(
+		`UPDATE parcel
+		SET address = ?
+		WHERE number = ? AND status = ?`,
+		address,
+		number,
+		ParcelStatusRegistered,
+	)
 	if err != nil {
 		return err
 	}
 
-	if p.Status != ParcelStatusRegistered {
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
 		return errors.New("address can be changed only for registered parcel")
 	}
 
-	_, err = s.db.Exec(
-		`UPDATE parcel
-		SET address = ?
-		WHERE number = ?`,
-		address, number,
-	)
-
-	return err
+	return nil
 }
 
 func (s ParcelStore) Delete(number int) error {
-	p, err := s.Get(number)
+	result, err := s.db.Exec(
+		`DELETE FROM parcel
+		WHERE number = ? AND status = ?`,
+		number,
+		ParcelStatusRegistered,
+	)
 	if err != nil {
 		return err
 	}
 
-	if p.Status != ParcelStatusRegistered {
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
 		return errors.New("only registered parcel can be deleted")
 	}
 
-	_, err = s.db.Exec(
-		`DELETE FROM parcel
-		WHERE number = ?`,
-		number,
-	)
-
-	return err
+	return nil
 }
