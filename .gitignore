@@ -1,0 +1,16 @@
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal
+
+# Build outputs
+go-parcel-tracker
+go-parcel-tracker.exe
+
+# IDE settings
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
