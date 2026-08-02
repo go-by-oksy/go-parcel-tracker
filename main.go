@@ -104,6 +104,11 @@ func main() {
 	}
 	defer db.Close()
 
+	if err := createSchema(db); err != nil {
+		fmt.Println("failed to initialize database:", err)
+		return
+	}
+
 	store := NewParcelStore(db)
 	service := NewParcelService(store)
 

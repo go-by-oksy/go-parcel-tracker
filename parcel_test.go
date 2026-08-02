@@ -2,17 +2,12 @@ package main
 
 import (
 	"database/sql"
-	"math/rand"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 	_ "modernc.org/sqlite"
-)
-
-var (
-	randSource = rand.NewSource(time.Now().UnixNano())
-	randRange  = rand.New(randSource)
 )
 
 func getTestParcel() Parcel {
@@ -27,7 +22,12 @@ func getTestParcel() Parcel {
 func openTestDB(t *testing.T) *sql.DB {
 	t.Helper()
 
-	db, err := sql.Open("sqlite", "tracker.db")
+	dbPath := filepath.Join(t.TempDir(), "tracker.db")
+
+	db, err := sql.Open("sqlite", dbPath)
+	require.NoError(t, err)
+
+	err = createSchema(db)
 	require.NoError(t, err)
 
 	return db
@@ -113,7 +113,7 @@ func TestGetByClient(t *testing.T) {
 	}
 	parcelMap := map[int]Parcel{}
 
-	client := randRange.Intn(10_000_000)
+	client := 42
 
 	for i := 0; i < len(parcels); i++ {
 		parcels[i].Client = client
